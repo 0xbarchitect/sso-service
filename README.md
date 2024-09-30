@@ -1,6 +1,6 @@
 # SSO Service
 
-The all-on-one SSO Service that complies with OAuth2 standard and supports multiple authentication schemes, including email, social accounts, EOA wallet, multi-sig wallet.
+The all-in-one SSO Service that complies with OAuth2 standard and supports multiple authentication schemes, including email, social accounts, EOA wallet, multi-sig wallet.
 
 ## Architecture
 
