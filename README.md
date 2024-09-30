@@ -58,7 +58,7 @@ $ make test-unit
 
 ## Compile
 
-- Compile executables
+- Make executables
 
 ```sh
 $ make build
