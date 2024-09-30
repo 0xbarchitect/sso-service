@@ -5,197 +5,16 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-oauth2/oauth2/v4"
-	"github.com/go-oauth2/oauth2/v4/server"
 
 	"sso/core"
 	"sso/helper"
 	"sso/models"
-	"sso/service"
 )
-
-// @Deprecated
-// @Summary GetDareIdByWalletAddress
-// @ID GetDareIdByWalletAddress
-// @Security ClientBasicAuth
-// @Produce application/json
-// @Param wallet_address path string true "wallet address"
-// @Success 200 {string} application/json
-// @Router /get_dareid_by_wallet_address/{wallet_address} [get]
-func GetDareIdByWalletAddress(c *gin.Context) {
-	var data core.DareIdData
-	var account models.Account
-	var err error
-	var isCreated bool
-
-	// get oauth server from ctx
-	srvCtx, existed := c.Get("oauthServer")
-
-	if !existed {
-		err := fmt.Errorf("not found oauth server in context")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	srv := srvCtx.(*server.Server)
-	if srv == nil {
-		err := fmt.Errorf("not found oauth server in context")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	walletAddr := c.Param("wallet_address")
-	helper.GetLogger().Debug("find dareid by wallet address %s", walletAddr)
-	walletAddr = strings.ToLower(walletAddr)
-
-	if !helper.WalletAddressValid(walletAddr) {
-		err := fmt.Errorf("wallet address is invalid")
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err = models.DB.Where("wallet_address = ?", walletAddr).First(&account).Error; err != nil {
-		helper.GetLogger().Debug("not found dareid by wallet address %s, create new one ...", walletAddr)
-
-		dareid, err := service.GetSFGenerator().GenerateID()
-		if err != nil {
-			helper.GetLogger().Error("generator dareid failed with error %s", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"code": -2, "error": err.Error()})
-			return
-		}
-		helper.GetLogger().Debug("generated new dareid %d", dareid)
-		name := "auto-created"
-		account = models.Account{
-			Dareid:        dareid,
-			WalletAddress: &walletAddr,
-			Name:          &name,
-			// CreatedAt:     time.Now(),
-			// UpdatedAt:     time.Now(),
-			// IsDeleted:     0,
-		}
-
-		if err := models.DB.Create(&account).Error; err != nil {
-			msg := fmt.Sprintf("create new account failed with error %s", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"code": -1, "message": msg})
-			return
-		} else {
-			helper.GetLogger().Debug("created new account with id %d", account.ID)
-			isCreated = true
-			data, err = models.CreateDareidDataFromAccount(&account)
-			if err != nil {
-				helper.GetLogger().Error("encoding resp data failed with error %s", err)
-				c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "error": err.Error()})
-				return
-			}
-		}
-	} else {
-		data, err = models.CreateDareidDataFromAccount(&account)
-		if err != nil {
-			helper.GetLogger().Error("encoding resp data failed with error %s", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "error": err.Error()})
-			return
-		}
-	}
-
-	// oauth2 token
-	clientId := c.MustGet(gin.AuthUserKey).(string)
-	var client models.Client
-	if err := models.GetClientRepository().GetClientByClientId(clientId, &client); err != nil {
-		helper.GetLogger().Error("not found client %s", clientId)
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-	helper.GetLogger().Debug("found client id %d with client_id %s and secret %s", client.ID, client.ClientId, client.ClientSecret)
-
-	gt := oauth2.GrantType("password")
-	tgr := &oauth2.TokenGenerateRequest{
-		ClientID:     client.ClientId,
-		ClientSecret: client.ClientSecret,
-		Request:      c.Request,
-		Scope:        "all",
-		UserID:       data.Dareid,
-	}
-	ti, err := srv.GetAccessToken(c.Request.Context(), gt, tgr)
-	if err != nil {
-		helper.GetLogger().Error("get oauth token failed with error %s", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	httpStatus := http.StatusOK
-	if isCreated {
-		httpStatus = http.StatusCreated
-	}
-
-	c.JSON(httpStatus, gin.H{"code": 0, "message": "get success", "data": data, "oauth": srv.GetTokenData(ti)})
-}
 
 type ReqRefreshToken struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
-}
-
-// @Deprecated
-// @Summary RefreshToken - this API is deprecated, please use /oauth/token instead
-// @ID RefreshToken
-// @Security ClientBasicAuth
-// @Produce application/json
-// @Param _ body ReqRefreshToken false "refresh token req body"
-// @Success 200 {string} application/json
-// @Router /refresh_token [post]
-func RefreshToken(c *gin.Context) {
-	var err error
-	var req ReqRefreshToken
-	if err = c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// get oauth server from ctx
-	srvCtx, existed := c.Get("oauthServer")
-
-	if !existed {
-		err := fmt.Errorf("not found oauth server in context")
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	srv := srvCtx.(*server.Server)
-
-	if srv == nil {
-		err := fmt.Errorf("not found oauth server in context")
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	// oauth2 token
-	clientId := c.MustGet(gin.AuthUserKey).(string)
-	var client models.Client
-	if err := models.GetClientRepository().GetClientByClientId(clientId, &client); err != nil {
-		helper.GetLogger().Error("not found client %s", clientId)
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	//gt := oauth2.GrantType("refresh_token")
-	tgr := &oauth2.TokenGenerateRequest{
-		ClientID:     clientId,
-		ClientSecret: client.ClientSecret,
-		Request:      c.Request,
-		Refresh:      req.RefreshToken,
-		Scope:        "all",
-	}
-	//ti, err := srv.GetAccessToken(c.Request.Context(), gt, tgr)
-	ti, err := srv.Manager.RefreshAccessToken(c.Request.Context(), tgr)
-	if err != nil {
-		helper.GetLogger().Error("get oauth token failed with error %s", err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "refresh token success", "oauth": srv.GetTokenData(ti)})
 }
 
 type ReqUpdateProfile struct {
@@ -222,29 +41,29 @@ func UpdateProfile(c *gin.Context) {
 	}
 
 	// get oauth server from ctx
-	dareidCtx, existed := c.Get("dareid")
+	uidCtx, existed := c.Get("uid")
 	if !existed {
-		err = fmt.Errorf("not found dareid in context")
+		err = fmt.Errorf("not found uid in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	dareidStr := dareidCtx.(string)
-	if len(dareidStr) == 0 {
-		err = fmt.Errorf("empty dareid in context")
+	uidStr := uidCtx.(string)
+	if len(uidStr) == 0 {
+		err = fmt.Errorf("empty uid in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	helper.GetLogger().Debug("update profile for dareid %d", dareid)
+	helper.GetLogger().Debug("update profile for uid %d", uid)
 	var account models.Account
-	if err := models.DB.Joins("AccountGoogle").Where("accounts.dareid=?", dareid).First(&account).Error; err != nil {
+	if err := models.DB.Joins("AccountGoogle").Where("accounts.uid=?", uid).First(&account).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
@@ -283,25 +102,25 @@ func GetProfile(c *gin.Context) {
 	var err error
 	var data core.DareIdData
 
-	// get dareid from ctx
-	dareidCtx, existed := c.Get("dareid")
+	// get uid from ctx
+	uidCtx, existed := c.Get("uid")
 	if !existed {
-		err = fmt.Errorf("not found dareid in context")
+		err = fmt.Errorf("not found uid in context")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	dareid := dareidCtx.(string)
+	uid := uidCtx.(string)
 
-	if len(dareid) == 0 {
-		err = fmt.Errorf("not found dareid in context")
+	if len(uid) == 0 {
+		err = fmt.Errorf("not found uid in context")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	helper.GetLogger().Debug("get profile for dareid %s", dareid)
+	helper.GetLogger().Debug("get profile for uid %s", uid)
 	var account models.Account
-	if err := models.DB.Joins("AccountGoogle").Joins("AccountTwitter").Joins("AccountTelegram").Where("accounts.dareid=?", dareid).First(&account).Error; err != nil {
+	if err := models.DB.Joins("AccountGoogle").Joins("AccountTwitter").Joins("AccountTelegram").Where("accounts.uid=?", uid).First(&account).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -324,9 +143,9 @@ func GetProfile(c *gin.Context) {
 // @ID GetProfileByDareid
 // @Security ClientBasicAuth
 // @Produce application/json
-// @Param dareid path string true "dareid"
+// @Param uid path string true "uid"
 // @Success 200 {string} application/json
-// @Router /get_profile_by_dareid/:dareid [get]
+// @Router /get_profile_by_uid/:uid [get]
 func GetProfileByDareid(c *gin.Context) {
 	var err error
 	var data core.DareIdData
@@ -347,16 +166,16 @@ func GetProfileByDareid(c *gin.Context) {
 		return
 	}
 
-	dareid := c.Param("dareid")
-	if len(dareid) == 0 {
-		err = fmt.Errorf("not found dareid in context")
+	uid := c.Param("uid")
+	if len(uid) == 0 {
+		err = fmt.Errorf("not found uid in context")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	helper.GetLogger().Debug("get profile for dareid %s", dareid)
+	helper.GetLogger().Debug("get profile for uid %s", uid)
 	var account models.Account
-	if err := models.DB.Joins("AccountGoogle").Joins("AccountTwitter").Joins("AccountTelegram").Where("accounts.dareid=?", dareid).First(&account).Error; err != nil {
+	if err := models.DB.Joins("AccountGoogle").Joins("AccountTwitter").Joins("AccountTelegram").Where("accounts.uid=?", uid).First(&account).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
@@ -395,15 +214,15 @@ func CreateAPIKey(c *gin.Context) {
 		}
 	}()
 
-	dareidStr := c.MustGet("dareid").(string)
-	dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+	uidStr := c.MustGet("uid").(string)
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("dareid invalid").Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("uid invalid").Error()})
 		return
 	}
 	var account models.Account
-	if err = models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found dareid %d", dareid)})
+	if err = models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found uid %d", uid)})
 		return
 	}
 
@@ -415,7 +234,7 @@ func CreateAPIKey(c *gin.Context) {
 
 	var secrets []models.AccountSecret
 	if err = models.GetAccountRepository().GetAPIKey(&account, &secrets); err != nil {
-		helper.GetLogger().Debug("not found api-key of dareid %d, create new one", account.Dareid)
+		helper.GetLogger().Debug("not found api-key of uid %d, create new one", account.Dareid)
 	} else {
 		if len(secrets) >= int(maxNumber) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("account %d has reached max number of key", account.Dareid).Error()})
@@ -452,22 +271,22 @@ func GetAPIKey(c *gin.Context) {
 		}
 	}()
 
-	dareidStr := c.MustGet("dareid").(string)
-	dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+	uidStr := c.MustGet("uid").(string)
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("dareid invalid").Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("uid invalid").Error()})
 		return
 	}
 
 	var account models.Account
-	if err = models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found dareid %d", dareid).Error()})
+	if err = models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found uid %d", uid).Error()})
 		return
 	}
 
 	var secrets []models.AccountSecret
 	if err := models.GetAccountRepository().GetAPIKey(&account, &secrets); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": fmt.Errorf("not found secret account %d", dareid).Error()})
+		c.JSON(http.StatusNotFound, gin.H{"error": fmt.Errorf("not found secret account %d", uid).Error()})
 		return
 	}
 
@@ -500,20 +319,20 @@ func DeleteAPIKey(c *gin.Context) {
 		return
 	}
 
-	dareidStr := c.MustGet("dareid").(string)
-	dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+	uidStr := c.MustGet("uid").(string)
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("dareid invalid").Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("uid invalid").Error()})
 		return
 	}
 	var account models.Account
-	if err = models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found dareid %d", dareid).Error()})
+	if err = models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found uid %d", uid).Error()})
 		return
 	}
 	var secret models.AccountSecret
 	if err := models.GetAccountRepository().GetAPIKeyByAccountAndID(&account, req.SecretID, &secret); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("not found secret id %d of dareid %d", req.SecretID, dareid).Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("not found secret id %d of uid %d", req.SecretID, uid).Error()})
 		return
 	}
 

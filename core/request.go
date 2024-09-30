@@ -71,7 +71,7 @@ type RespValidateToken struct {
 	Code    int64      `json:"code"`
 	Message string     `json:"message"`
 	Oauth   OauthToken `json:"oauth"`
-	Dareid  string     `json:"dareid"`
+	Dareid  string     `json:"uid"`
 }
 
 type APIKey struct {

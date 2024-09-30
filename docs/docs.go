@@ -406,38 +406,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/get_dareid_by_wallet_address/{wallet_address}": {
-            "get": {
-                "security": [
-                    {
-                        "ClientBasicAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "GetDareIdByWalletAddress",
-                "operationId": "GetDareIdByWalletAddress",
-                "deprecated": true,
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "wallet address",
-                        "name": "wallet_address",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/get_profile": {
             "get": {
                 "security": [
@@ -460,7 +428,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/get_profile_by_dareid/:dareid": {
+        "/get_profile_by_uid/:uid": {
             "get": {
                 "security": [
                     {
@@ -475,8 +443,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "dareid",
-                        "name": "dareid",
+                        "description": "uid",
+                        "name": "uid",
                         "in": "path",
                         "required": true
                     }
@@ -712,39 +680,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/oauth/token-with-data": {
-            "post": {
-                "security": [
-                    {
-                        "ClientBasicAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "IssueTokenForDareidWithData - this API is deprecated, please use /oauth/token instead",
-                "operationId": "IssueTokenForDareidWithData",
-                "deprecated": true,
-                "parameters": [
-                    {
-                        "description": "issue token for dareid req body",
-                        "name": "_",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.ReqIssueTokenForDareid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/oauth/validate-token": {
             "get": {
                 "produces": [
@@ -785,39 +720,6 @@ const docTemplate = `{
                         "name": "email",
                         "in": "formData",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/refresh_token": {
-            "post": {
-                "security": [
-                    {
-                        "ClientBasicAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "RefreshToken - this API is deprecated, please use /oauth/token instead",
-                "operationId": "RefreshToken",
-                "deprecated": true,
-                "parameters": [
-                    {
-                        "description": "refresh token req body",
-                        "name": "_",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/controllers.ReqRefreshToken"
-                        }
                     }
                 ],
                 "responses": {
@@ -1133,31 +1035,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ReqIssueTokenForDareid": {
-            "type": "object",
-            "required": [
-                "dareid"
-            ],
-            "properties": {
-                "dareid": {
-                    "type": "string"
-                },
-                "data": {
-                    "type": "string"
-                }
-            }
-        },
-        "controllers.ReqRefreshToken": {
-            "type": "object",
-            "required": [
-                "refresh_token"
-            ],
-            "properties": {
-                "refresh_token": {
                     "type": "string"
                 }
             }

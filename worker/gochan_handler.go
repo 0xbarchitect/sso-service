@@ -34,9 +34,9 @@ func BackgroundJobHandler(jobChan chan core.BackgroundJob, oauthSrv *server.Serv
 			helper.GetLogger().Debug("receive background job type %d with data %s", job.Type, job.Data)
 			switch job.Type {
 			case core.MAIL_VERIFICATION_JOB:
-				dareid, ok := job.Data["dareid"]
+				uid, ok := job.Data["uid"]
 				if !ok {
-					helper.GetLogger().Error("not found dareid in job")
+					helper.GetLogger().Error("not found uid in job")
 					continue
 				}
 				if _, ok := job.Data["email"]; !ok {
@@ -51,7 +51,7 @@ func BackgroundJobHandler(jobChan chan core.BackgroundJob, oauthSrv *server.Serv
 					ClientSecret: demoClientSecret,
 					Request:      &http.Request{},
 					Scope:        "email_verification",
-					UserID:       dareid,
+					UserID:       uid,
 				}
 				if _, err := oauthSrv.GetAccessToken(context.Background(), gt, tgr); err != nil {
 					helper.GetLogger().Error("get oauth token failed with error %s", err)

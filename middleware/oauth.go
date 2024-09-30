@@ -24,7 +24,7 @@ func OauthMiddleware(oauthSrv *server.Server) gin.HandlerFunc {
 			return
 		}
 
-		c.Set("dareid", ti.GetUserID())
+		c.Set("uid", ti.GetUserID())
 		c.Set("client_id", ti.GetClientID())
 
 		c.Next()

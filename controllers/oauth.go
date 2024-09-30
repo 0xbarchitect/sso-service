@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 
 	"sso/helper"
@@ -14,7 +13,6 @@ import (
 	ginSession "github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/go-oauth2/oauth2/errors"
-	"github.com/go-oauth2/oauth2/v4"
 	"github.com/go-oauth2/oauth2/v4/server"
 )
 
@@ -101,17 +99,17 @@ func OauthAuthorizeHandler(c *gin.Context) {
 
 	var form url.Values
 
-	dareid := ginStore.Get(LOGGED_UID_KEY)
-	if dareid != nil {
+	uid := ginStore.Get(LOGGED_UID_KEY)
+	if uid != nil {
 		// already logged in
-		helper.GetLogger().Debug("found logged in user in session %s", dareid.(string))
+		helper.GetLogger().Debug("found logged in user in session %s", uid.(string))
 		v := ginStore.Get(RETURN_URI_KEY)
 		if v != nil {
 			helper.GetLogger().Debug("get return uri from session success %T", v)
 			form = v.(url.Values)
 			r.Form = form
 		}
-		injectedCtx := context.WithValue(r.Context(), LOGGED_UID_KEY, dareid.(string))
+		injectedCtx := context.WithValue(r.Context(), LOGGED_UID_KEY, uid.(string))
 		r = r.WithContext(injectedCtx)
 
 		// cleanup uid & query string params from session to enable to redirect back to client
@@ -152,8 +150,8 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 	}()
 
 	helper.GetLogger().Debug("check existing user in session")
-	dareid := r.Context().Value(LOGGED_UID_KEY)
-	if dareid == nil {
+	uid := r.Context().Value(LOGGED_UID_KEY)
+	if uid == nil {
 		// not logged in, redirect based on client's initial state
 		state := r.Context().Value("state")
 		if state == "signup" {
@@ -169,7 +167,7 @@ func UserAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 	}
 
 	// already logged in, move on to redirect back to client
-	userID = dareid.(string)
+	userID = uid.(string)
 	return
 }
 
@@ -215,88 +213,8 @@ func PasswordAuthorizationHandler(ctx context.Context, clientID, username, passw
 }
 
 type ReqIssueTokenForDareid struct {
-	Dareid string `json:"dareid" binding:"required"`
+	Dareid string `json:"uid" binding:"required"`
 	Data   string `json:"data"`
-}
-
-// @Deprecated
-// @Summary IssueTokenForDareidWithData - this API is deprecated, please use /oauth/token instead
-// @ID IssueTokenForDareidWithData
-// @Security ClientBasicAuth
-// @Produce application/json
-// @Param _ body ReqIssueTokenForDareid false "issue token for dareid req body"
-// @Success 200 {string} application/json
-// @Router /oauth/token-with-data [post]
-func IssueTokenForDareidWithData(c *gin.Context) {
-	var err error
-
-	var req ReqIssueTokenForDareid
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// only system client could call this api
-	clientId := c.MustGet(gin.AuthUserKey).(string)
-	var client models.Client
-	if err := models.GetClientRepository().GetClientByClientId(clientId, &client); err != nil {
-		helper.GetLogger().Error("client %s is not found", clientId)
-		err = fmt.Errorf("client id is not found")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-	if *client.IsSystem != int32(1) {
-		helper.GetLogger().Error("client %s is unauthorized to access this api", clientId)
-		err = fmt.Errorf("client is unauthorized")
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	// validate dareid
-	dareid, err := strconv.ParseInt(req.Dareid, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "dareid must be number"})
-		return
-	}
-	var account models.Account
-	if err := models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": fmt.Errorf("dareid %s not exists", req.Dareid).Error()})
-		return
-	}
-
-	// get oauth server from ctx
-	srvCtx, existed := c.Get("oauthServer")
-
-	if !existed {
-		err := fmt.Errorf("not found oauth server in context")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	srv := srvCtx.(*server.Server)
-	if srv == nil {
-		err := fmt.Errorf("not found oauth server in context")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// oauth2 token
-	gt := oauth2.GrantType("password")
-	tgr := &oauth2.TokenGenerateRequest{
-		ClientID:     client.ClientId,
-		ClientSecret: client.ClientSecret,
-		Request:      c.Request,
-		Scope:        req.Data,
-		UserID:       req.Dareid,
-	}
-	ti, err := srv.GetAccessToken(c.Request.Context(), gt, tgr)
-	if err != nil {
-		helper.GetLogger().Error("get oauth token failed with error %s", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "get success", "oauth": srv.GetTokenData(ti)})
 }
 
 // @Summary ValidateToken
@@ -337,7 +255,7 @@ func ValidateToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"code":      0,
 		"message":   "validation success",
-		"dareid":    ti.GetUserID(),
+		"uid":       ti.GetUserID(),
 		"client_id": ti.GetClientID(),
 		"oauth":     srv.GetTokenData(ti),
 	})

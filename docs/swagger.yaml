@@ -71,22 +71,6 @@ definitions:
     - email
     - password
     type: object
-  controllers.ReqIssueTokenForDareid:
-    properties:
-      dareid:
-        type: string
-      data:
-        type: string
-    required:
-    - dareid
-    type: object
-  controllers.ReqRefreshToken:
-    properties:
-      refresh_token:
-        type: string
-    required:
-    - refresh_token
-    type: object
   controllers.ReqUpdateProfile:
     properties:
       avatar_url:
@@ -418,26 +402,6 @@ paths:
       security:
       - JwtHeader: []
       summary: Get API Key
-  /get_dareid_by_wallet_address/{wallet_address}:
-    get:
-      deprecated: true
-      operationId: GetDareIdByWalletAddress
-      parameters:
-      - description: wallet address
-        in: path
-        name: wallet_address
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      security:
-      - ClientBasicAuth: []
-      summary: GetDareIdByWalletAddress
   /get_profile:
     get:
       operationId: GetProfile
@@ -451,13 +415,13 @@ paths:
       security:
       - JwtHeader: []
       summary: GetProfile
-  /get_profile_by_dareid/:dareid:
+  /get_profile_by_uid/:uid:
     get:
       operationId: GetProfileByDareid
       parameters:
-      - description: dareid
+      - description: uid
         in: path
-        name: dareid
+        name: uid
         required: true
         type: string
       produces:
@@ -615,27 +579,6 @@ paths:
       security:
       - ClientBasicAuth: []
       summary: OauthTokenHandler
-  /oauth/token-with-data:
-    post:
-      deprecated: true
-      operationId: IssueTokenForDareidWithData
-      parameters:
-      - description: issue token for dareid req body
-        in: body
-        name: _
-        schema:
-          $ref: '#/definitions/controllers.ReqIssueTokenForDareid'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      security:
-      - ClientBasicAuth: []
-      summary: IssueTokenForDareidWithData - this API is deprecated, please use /oauth/token
-        instead
   /oauth/validate-token:
     get:
       operationId: ValidateToken
@@ -670,26 +613,6 @@ paths:
           schema:
             type: string
       summary: RecoverPassword
-  /refresh_token:
-    post:
-      deprecated: true
-      operationId: RefreshToken
-      parameters:
-      - description: refresh token req body
-        in: body
-        name: _
-        schema:
-          $ref: '#/definitions/controllers.ReqRefreshToken'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      security:
-      - ClientBasicAuth: []
-      summary: RefreshToken - this API is deprecated, please use /oauth/token instead
   /regist-account:
     post:
       operationId: RegistAccountHandler

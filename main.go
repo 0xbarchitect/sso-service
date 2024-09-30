@@ -284,7 +284,7 @@ func setupRouter() *gin.Engine {
 	clientAuthorized := r.Group("/", gin.BasicAuth(*ginAccounts))
 	helper.GetLogger().Info("setup client auth middleware success...")
 
-	clientAuthorized.GET("/get_profile_by_dareid/:dareid", controllers.GetProfileByDareid) // only system services is authorized
+	clientAuthorized.GET("/get_profile_by_uid/:uid", controllers.GetProfileByDareid) // only system services is authorized
 
 	userAuthorized := r.Group("/", middleware.OauthMiddleware(oauthSrv))
 	helper.GetLogger().Info("setup user oauth middleware success...")

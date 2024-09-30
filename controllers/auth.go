@@ -227,29 +227,29 @@ func LoginHandler(c *gin.Context) {
 
 		state := r.Form.Get("state")
 		if state == "email_verify" {
-			// get dareid from session store
-			dareidCtx := ginStore.Get(LOGGED_UID_KEY)
-			if dareidCtx == nil {
-				helper.GetLogger().Error("not found dareid in session")
+			// get uid from session store
+			uidCtx := ginStore.Get(LOGGED_UID_KEY)
+			if uidCtx == nil {
+				helper.GetLogger().Error("not found uid in session")
 				c.Redirect(http.StatusFound, "/login")
 				return
 			}
-			dareidStr := dareidCtx.(string)
-			if len(dareidStr) == 0 {
-				helper.GetLogger().Error("empty dareid in session")
+			uidStr := uidCtx.(string)
+			if len(uidStr) == 0 {
+				helper.GetLogger().Error("empty uid in session")
 				c.Redirect(http.StatusFound, "/login")
 				return
 			}
-			dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+			uid, err := strconv.ParseInt(uidStr, 10, 64)
 			if err != nil {
-				helper.GetLogger().Error("parsing dareid failed with error %s", err)
+				helper.GetLogger().Error("parsing uid failed with error %s", err)
 				c.Redirect(http.StatusFound, "/login")
 				return
 			}
 
 			var account models.Account
-			if err := models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-				helper.GetLogger().Error("get account from dareid %d failed with error %s", dareid, err)
+			if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+				helper.GetLogger().Error("get account from uid %d failed with error %s", uid, err)
 				c.Redirect(http.StatusFound, "/login")
 				return
 			}
@@ -335,7 +335,7 @@ func LoginHandler(c *gin.Context) {
 				return
 			}
 
-			// save dareid into session
+			// save uid into session
 			helper.GetLogger().Debug("save uid into session %d", acct.Dareid)
 			ginStore.Set(LOGGED_UID_KEY, fmt.Sprintf("%d", acct.Dareid))
 			ginStore.Save()
@@ -491,17 +491,17 @@ func SignupHandler(c *gin.Context) {
 			return
 		}
 
-		dareidStr := token.GetUserID()
-		dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+		uidStr := token.GetUserID()
+		uid, err := strconv.ParseInt(uidStr, 10, 64)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "parsing dareid failed"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "parsing uid failed"})
 			return
 		}
-		helper.GetLogger().Debug("found dareid %d from access token", dareid)
+		helper.GetLogger().Debug("found uid %d from access token", uid)
 
 		var account models.Account
-		if err := models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "not found dareid"})
+		if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "not found uid"})
 			return
 		}
 
@@ -511,7 +511,7 @@ func SignupHandler(c *gin.Context) {
 			return
 		}
 
-		// save dareid into session and redirect to authorization page
+		// save uid into session and redirect to authorization page
 		ginStore.Set(LOGGED_UID_KEY, fmt.Sprintf("%d", account.Dareid))
 		ginStore.Save()
 
@@ -669,13 +669,13 @@ func AuthHandler(c *gin.Context) {
 
 	ginStore := ginSession.Default(c)
 
-	dareid := ginStore.Get(LOGGED_UID_KEY)
-	if dareid == nil {
+	uid := ginStore.Get(LOGGED_UID_KEY)
+	if uid == nil {
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
-	dareid = dareid.(string)
+	uid = uid.(string)
 
 	clientName := "DareApps"
 	var form url.Values
@@ -713,11 +713,11 @@ func AuthHandler(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		if claims.DareID != dareid.(string) {
-			helper.GetLogger().Error("oauth-auth token dareid not matched, clean cookie")
+		if claims.DareID != uid.(string) {
+			helper.GetLogger().Error("oauth-auth token uid not matched, clean cookie")
 			c.SetCookie(OAUTH_AUTH_COOKIE_NAME, "", -1, "/", cookieDomain, false, false)
 		} else {
-			helper.GetLogger().Debug("verify oauth token success with dareid %s", claims.DareID)
+			helper.GetLogger().Debug("verify oauth token success with uid %s", claims.DareID)
 			c.Redirect(http.StatusFound, "/oauth/authorize")
 			return
 		}
@@ -725,7 +725,7 @@ func AuthHandler(c *gin.Context) {
 
 	if c.Request.Method == http.MethodPost {
 		// authorization submitted, create onetime token
-		token, err := helper.GetJwtHelper().CreateCustomToken(dareid.(string), "oauth_auth", AUTH_COOKIE_TTL)
+		token, err := helper.GetJwtHelper().CreateCustomToken(uid.(string), "oauth_auth", AUTH_COOKIE_TTL)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -865,7 +865,7 @@ func RecoverPassword(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		helper.GetLogger().Debug("generate access token %s for dareid %d", ti.GetAccess(), account.Dareid)
+		helper.GetLogger().Debug("generate access token %s for uid %d", ti.GetAccess(), account.Dareid)
 
 		result, err := service.GetSendgridService().SendRecoverPasswordEmail(email, ssoURL, ti.GetAccess())
 		if err != nil {
@@ -925,17 +925,17 @@ func ChangePassword(c *gin.Context) {
 		return
 	}
 
-	dareidStr := token.GetUserID()
-	dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+	uidStr := token.GetUserID()
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": -2, "error": "parsing dareid failed"})
+		c.JSON(http.StatusUnauthorized, gin.H{"code": -2, "error": "parsing uid failed"})
 		return
 	}
-	helper.GetLogger().Debug("found dareid %d from access token", dareid)
+	helper.GetLogger().Debug("found uid %d from access token", uid)
 
 	var account models.Account
-	if err := models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": -3, "error": "not found dareid"})
+	if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": -3, "error": "not found uid"})
 		return
 	}
 
@@ -974,7 +974,7 @@ func ChangePassword(c *gin.Context) {
 		}
 
 		if err := models.GetAccountRepository().ChangePassword(password, &account); err != nil {
-			helper.GetLogger().Debug("update password failed with error %s for dareid %d", err, dareid)
+			helper.GetLogger().Debug("update password failed with error %s for uid %d", err, uid)
 			c.HTML(http.StatusOK, "change_password.tmpl", gin.H{
 				"title": "SSO | Signup",
 				"error": err.Error(),
@@ -982,7 +982,7 @@ func ChangePassword(c *gin.Context) {
 			})
 			return
 		} else {
-			helper.GetLogger().Debug("update password success for dareid %d", dareid)
+			helper.GetLogger().Debug("update password success for uid %d", uid)
 			c.HTML(http.StatusOK, "change_password.tmpl", gin.H{
 				"title":           "SSO | Signup",
 				"success":         "Password updated success.",
@@ -1031,17 +1031,17 @@ func VerifyEmail(c *gin.Context) {
 		return
 	}
 
-	dareidStr := token.GetUserID()
-	dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+	uidStr := token.GetUserID()
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": -2, "error": "parsing dareid failed"})
+		c.JSON(http.StatusUnauthorized, gin.H{"code": -2, "error": "parsing uid failed"})
 		return
 	}
-	helper.GetLogger().Debug("found dareid %d from access token", dareid)
+	helper.GetLogger().Debug("found uid %d from access token", uid)
 
 	var account models.Account
-	if err := models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"code": -3, "error": "not found dareid"})
+	if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"code": -3, "error": "not found uid"})
 		return
 	}
 
@@ -1197,8 +1197,8 @@ func VerifyChallenge(c *gin.Context) {
 			return
 		}
 	}
-	helper.GetLogger().Debug("found account with dareid %d", account.Dareid)
-	// hotfix: need to create return object to prevent int64 casting error of dareid
+	helper.GetLogger().Debug("found account with uid %d", account.Dareid)
+	// hotfix: need to create return object to prevent int64 casting error of uid
 	accountDare := core.AccountDare{
 		Dareid: fmt.Sprintf("%d", account.Dareid),
 	}

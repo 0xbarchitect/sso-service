@@ -67,7 +67,7 @@ func ConnectIdentityProvider(c *gin.Context) {
 		return
 	}
 
-	dareid := token.GetUserID()
+	uid := token.GetUserID()
 	clientId := token.GetClientID()
 
 	clientDemoIdInf, exists := c.Get("clientDemoId")
@@ -88,9 +88,9 @@ func ConnectIdentityProvider(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": err2.Error()})
 			return
 		}
-		state = fmt.Sprintf("client_%d_dareid_%s", client.ID, dareid)
+		state = fmt.Sprintf("client_%d_uid_%s", client.ID, uid)
 	} else {
-		state = fmt.Sprintf("client_0_dareid_%s", dareid)
+		state = fmt.Sprintf("client_0_uid_%s", uid)
 	}
 
 	botName := "sso_bot" // default
@@ -125,7 +125,7 @@ func ConnectIdentityProvider(c *gin.Context) {
 	}
 
 	// save connect data into cookie
-	c.SetCookie(UID_COOKIE_NAME, dareid, cookieTTL, "/", cookieDomain, false, false)
+	c.SetCookie(UID_COOKIE_NAME, uid, cookieTTL, "/", cookieDomain, false, false)
 	c.SetCookie(CLIENTID_COOKIE_NAME, clientId, cookieTTL, "/", cookieDomain, false, false)
 
 	// fetch redirect url from query
@@ -366,23 +366,23 @@ func GoogleConnectHandler(c *gin.Context) {
 
 	isDemo := false
 	clientIdStr := s[1]
-	dareidStr := s[3]
+	uidStr := s[3]
 
 	if clientIdStr == "0" { // client demo
 		isDemo = true
 	}
 	helper.GetLogger().Debug("isdemo %t", isDemo)
 
-	dareid, err := strconv.ParseInt(dareidStr, 10, 64)
+	uid, err := strconv.ParseInt(uidStr, 10, 64)
 	if err != nil {
-		helper.GetLogger().Error("invalid dareid in state")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("invalid dareid in state")})
+		helper.GetLogger().Error("invalid uid in state")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("invalid uid in state")})
 		return
 	}
 
 	var account models.Account
-	if err := models.GetAccountRepository().GetAccountByDareid(dareid, &account); err != nil {
-		helper.GetLogger().Error("not found dareid %s", dareid)
+	if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+		helper.GetLogger().Error("not found uid %s", uid)
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}

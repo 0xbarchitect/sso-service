@@ -34,12 +34,12 @@ func NewJWTHelper(secretKey string) *JWTHelper {
 
 type JWTHelperInf interface {
 	ValidateToken(tokenString string) (*generates.JWTAccessClaims, error)
-	CreateCustomToken(dareid string, data string, expiresAfter time.Duration) (string, error)
+	CreateCustomToken(uid string, data string, expiresAfter time.Duration) (string, error)
 	ParseCustomToken(tokenStr string) (*CustomClaims, error)
 }
 
 type CustomClaims struct {
-	DareID string `json:"dareid"`
+	DareID string `json:"uid"`
 	Data   string `json:"data"`
 	jwt.RegisteredClaims
 }
@@ -66,9 +66,9 @@ func (j *JWTHelper) ValidateToken(tokenString string) (*generates.JWTAccessClaim
 	return claims, nil
 }
 
-func (j *JWTHelper) CreateCustomToken(dareid string, data string, expiresAfter time.Duration) (string, error) {
+func (j *JWTHelper) CreateCustomToken(uid string, data string, expiresAfter time.Duration) (string, error) {
 	claims := CustomClaims{
-		dareid,
+		uid,
 		data,
 		jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
