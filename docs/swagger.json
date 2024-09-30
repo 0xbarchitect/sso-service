@@ -1,0 +1,1351 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Dare SSO Core Service",
+        "title": "Dare SSO",
+        "termsOfService": "https://darenft.com/",
+        "contact": {
+            "name": "https://darenft.com/",
+            "url": "https://darenft.com/",
+            "email": "contact@darenft.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/auth": {
+            "get": {
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "AuthHandler",
+                "operationId": "AuthHandler",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "AuthHandler",
+                "operationId": "AuthHandler",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/authorized/google": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GoogleAuthorizedReq",
+                "operationId": "GoogleAuthorizedReq",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "redirect_url",
+                        "name": "redirect_url",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/authorized/google_handler": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GoogleOauthHandler",
+                "operationId": "GoogleOauthHandler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/authorized/twitter": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "TwitterAuthorizedReq",
+                "operationId": "TwitterAuthorizedReq",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/change_password": {
+            "get": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "ChangePassword",
+                "operationId": "ChangePassword",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "confirm",
+                        "name": "confirm",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "ChangePassword",
+                "operationId": "ChangePassword",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "confirm",
+                        "name": "confirm",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/connect/:provider": {
+            "get": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "ConnectIdentityProvider",
+                "operationId": "ConnectIdentityProvider",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "provider",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/connect/google_handler": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GoogleConnectHandler",
+                "operationId": "GoogleConnectHandler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "code",
+                        "name": "code",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/create-api-key": {
+            "post": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create API Key",
+                "operationId": "CreateAPIKey",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateAPIKeyResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BadRequestResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ServerErrorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/delete-api-key": {
+            "delete": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete API Key",
+                "operationId": "DeleteAPIKey",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.DeleteAPIKeyReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.SuccessResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BadRequestResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ServerErrorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/generate-challenge": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Generate wallet challenge",
+                "operationId": "GenerateChallenge",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GenerateChallengeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GenerateChallengeResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BadRequestResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ServerErrorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/get-api-key": {
+            "get": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get API Key",
+                "operationId": "GetAPIKey",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.GetAPIKeyResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BadRequestResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ServerErrorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/get_dareid_by_wallet_address/{wallet_address}": {
+            "get": {
+                "security": [
+                    {
+                        "ClientBasicAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetDareIdByWalletAddress",
+                "operationId": "GetDareIdByWalletAddress",
+                "deprecated": true,
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "wallet address",
+                        "name": "wallet_address",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/get_presigned_url": {
+            "post": {
+                "security": [
+                    {
+                        "ClientBasicAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetS3PresignedURL",
+                "operationId": "GetS3PresignedURL",
+                "parameters": [
+                    {
+                        "description": "get s3 presigned url req body",
+                        "name": "_",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ReqGetS3PresignedURL"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/get_profile": {
+            "get": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetProfile",
+                "operationId": "GetProfile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/get_profile_by_dareid/:dareid": {
+            "get": {
+                "security": [
+                    {
+                        "ClientBasicAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "GetProfileByDareid",
+                "operationId": "GetProfileByDareid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "dareid",
+                        "name": "dareid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Health check",
+                "operationId": "HealthCheck",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.SuccessResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BadRequestResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ServerErrorResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "get": {
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "LoginHandler",
+                "operationId": "LoginHandler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "wallet_address",
+                        "name": "wallet_address",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "LoginHandler",
+                "operationId": "LoginHandler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "wallet_address",
+                        "name": "wallet_address",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/authorize": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "OauthAuthorizeHandler",
+                "operationId": "OauthAuthorizeHandler",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "OauthAuthorizeHandler",
+                "operationId": "OauthAuthorizeHandler",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/token": {
+            "post": {
+                "security": [
+                    {
+                        "ClientBasicAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "OauthTokenHandler",
+                "operationId": "OauthTokenHandler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Grant type, eg.: client_credentials, password, authorization_code, refresh_token",
+                        "name": "grant_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "authorization code",
+                        "name": "code",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "client's redirect uri",
+                        "name": "redirect_uri",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "PKCE code verifier",
+                        "name": "code_verifier",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "refresh token",
+                        "name": "refresh_token",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "scope of refreshing token",
+                        "name": "scope",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "password gt: username",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "password gt: password",
+                        "name": "password",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/token-with-data": {
+            "post": {
+                "security": [
+                    {
+                        "ClientBasicAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "IssueTokenForDareidWithData - this API is deprecated, please use /oauth/token instead",
+                "operationId": "IssueTokenForDareidWithData",
+                "deprecated": true,
+                "parameters": [
+                    {
+                        "description": "issue token for dareid req body",
+                        "name": "_",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ReqIssueTokenForDareid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/validate-token": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "ValidateToken",
+                "operationId": "ValidateToken",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "oauth token",
+                        "name": "access_token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/recover_password": {
+            "post": {
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "RecoverPassword",
+                "operationId": "RecoverPassword",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "email",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/refresh_token": {
+            "post": {
+                "security": [
+                    {
+                        "ClientBasicAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "RefreshToken - this API is deprecated, please use /oauth/token instead",
+                "operationId": "RefreshToken",
+                "deprecated": true,
+                "parameters": [
+                    {
+                        "description": "refresh token req body",
+                        "name": "_",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ReqRefreshToken"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/regist-account": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "RegistAccountHandler",
+                "operationId": "RegistAccountHandler",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.RegistAccountReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/signup": {
+            "get": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "SignupHandler",
+                "operationId": "SignupHandler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "confirm",
+                        "name": "confirm",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "multipart/form-data"
+                ],
+                "summary": "SignupHandler",
+                "operationId": "SignupHandler",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "state",
+                        "name": "state",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "password",
+                        "name": "password",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "confirm",
+                        "name": "confirm",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/update_profile": {
+            "post": {
+                "security": [
+                    {
+                        "JwtHeader": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "UpdateProfile",
+                "operationId": "UpdateProfile",
+                "parameters": [
+                    {
+                        "description": "update profile json body",
+                        "name": "_",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ReqUpdateProfile"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/verify-challenge": {
+            "post": {
+                "security": [
+                    {
+                        "ClientBasicAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Verify challenge signature",
+                "operationId": "VerifyChallenge",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "_",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.VerifyChallengeReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.VerifyChallengeResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.BadRequestResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.ServerErrorResp"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controllers.BadRequestResp": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "invalid request"
+                }
+            }
+        },
+        "controllers.CreateAPIKeyResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "secret": {
+                    "$ref": "#/definitions/models.AccountSecret"
+                }
+            }
+        },
+        "controllers.DeleteAPIKeyReq": {
+            "type": "object",
+            "properties": {
+                "secret_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.GenerateChallengeReq": {
+            "type": "object",
+            "required": [
+                "wallet"
+            ],
+            "properties": {
+                "chain_id": {
+                    "type": "string"
+                },
+                "wallet": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.GenerateChallengeResp": {
+            "type": "object",
+            "properties": {
+                "challenge": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
+        },
+        "controllers.GetAPIKeyResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "secrets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AccountSecret"
+                    }
+                }
+            }
+        },
+        "controllers.RegistAccountReq": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ReqGetS3PresignedURL": {
+            "type": "object",
+            "required": [
+                "dareid",
+                "filetype"
+            ],
+            "properties": {
+                "dareid": {
+                    "type": "string"
+                },
+                "filetype": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ReqIssueTokenForDareid": {
+            "type": "object",
+            "required": [
+                "dareid"
+            ],
+            "properties": {
+                "dareid": {
+                    "type": "string"
+                },
+                "data": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ReqRefreshToken": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ReqUpdateProfile": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.ServerErrorResp": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "db error"
+                }
+            }
+        },
+        "controllers.SuccessResp": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success"
+                }
+            }
+        },
+        "controllers.VerifyChallengeReq": {
+            "type": "object",
+            "required": [
+                "hash",
+                "signature"
+            ],
+            "properties": {
+                "hash": {
+                    "type": "string"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.VerifyChallengeResp": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "$ref": "#/definitions/core.AccountDare"
+                },
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success"
+                },
+                "oauth": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "core.AccountDare": {
+            "type": "object",
+            "properties": {
+                "dareid": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "walletAddress": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AccountSecret": {
+            "type": "object",
+            "properties": {
+                "accountID": {
+                    "type": "integer"
+                },
+                "apiKey": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "expiredAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isDeleted": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ClientBasicAuth": {
+            "type": "basic"
+        },
+        "JwtHeader": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

@@ -1,0 +1,867 @@
+basePath: /
+definitions:
+  controllers.BadRequestResp:
+    properties:
+      error:
+        example: invalid request
+        type: string
+    type: object
+  controllers.CreateAPIKeyResp:
+    properties:
+      code:
+        example: 200
+        type: integer
+      message:
+        example: Success
+        type: string
+      secret:
+        $ref: '#/definitions/models.AccountSecret'
+    type: object
+  controllers.DeleteAPIKeyReq:
+    properties:
+      secret_id:
+        type: integer
+    type: object
+  controllers.GenerateChallengeReq:
+    properties:
+      chain_id:
+        type: string
+      wallet:
+        type: string
+    required:
+    - wallet
+    type: object
+  controllers.GenerateChallengeResp:
+    properties:
+      challenge:
+        type: string
+      code:
+        example: 200
+        type: integer
+      hash:
+        type: string
+      message:
+        example: Success
+        type: string
+    type: object
+  controllers.GetAPIKeyResp:
+    properties:
+      code:
+        example: 200
+        type: integer
+      message:
+        example: Success
+        type: string
+      secrets:
+        items:
+          $ref: '#/definitions/models.AccountSecret'
+        type: array
+    type: object
+  controllers.RegistAccountReq:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  controllers.ReqGetS3PresignedURL:
+    properties:
+      dareid:
+        type: string
+      filetype:
+        type: string
+    required:
+    - dareid
+    - filetype
+    type: object
+  controllers.ReqIssueTokenForDareid:
+    properties:
+      dareid:
+        type: string
+      data:
+        type: string
+    required:
+    - dareid
+    type: object
+  controllers.ReqRefreshToken:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  controllers.ReqUpdateProfile:
+    properties:
+      avatar_url:
+        type: string
+      description:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.ServerErrorResp:
+    properties:
+      error:
+        example: db error
+        type: string
+    type: object
+  controllers.SuccessResp:
+    properties:
+      code:
+        example: 200
+        type: integer
+      message:
+        example: Success
+        type: string
+    type: object
+  controllers.VerifyChallengeReq:
+    properties:
+      hash:
+        type: string
+      scope:
+        type: string
+      signature:
+        type: string
+    required:
+    - hash
+    - signature
+    type: object
+  controllers.VerifyChallengeResp:
+    properties:
+      account:
+        $ref: '#/definitions/core.AccountDare'
+      code:
+        example: 200
+        type: integer
+      message:
+        example: Success
+        type: string
+      oauth:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  core.AccountDare:
+    properties:
+      dareid:
+        type: string
+      email:
+        type: string
+      walletAddress:
+        type: string
+    type: object
+  models.AccountSecret:
+    properties:
+      accountID:
+        type: integer
+      apiKey:
+        type: string
+      createdAt:
+        type: string
+      expiredAt:
+        type: string
+      id:
+        type: integer
+      isDeleted:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+info:
+  contact:
+    email: contact@darenft.com
+    name: https://darenft.com/
+    url: https://darenft.com/
+  description: Dare SSO Core Service
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://darenft.com/
+  title: Dare SSO
+  version: "1.0"
+paths:
+  /auth:
+    get:
+      operationId: AuthHandler
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: AuthHandler
+    post:
+      operationId: AuthHandler
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: AuthHandler
+  /authorized/google:
+    get:
+      operationId: GoogleAuthorizedReq
+      parameters:
+      - description: state
+        in: query
+        name: state
+        required: true
+        type: string
+      - description: redirect_url
+        in: query
+        name: redirect_url
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: GoogleAuthorizedReq
+  /authorized/google_handler:
+    get:
+      operationId: GoogleOauthHandler
+      parameters:
+      - description: state
+        in: query
+        name: state
+        required: true
+        type: string
+      - description: code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: GoogleOauthHandler
+  /authorized/twitter:
+    get:
+      operationId: TwitterAuthorizedReq
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: TwitterAuthorizedReq
+  /change_password:
+    get:
+      operationId: ChangePassword
+      parameters:
+      - description: password
+        in: formData
+        name: password
+        type: string
+      - description: confirm
+        in: formData
+        name: confirm
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - JwtHeader: []
+      summary: ChangePassword
+    post:
+      operationId: ChangePassword
+      parameters:
+      - description: password
+        in: formData
+        name: password
+        type: string
+      - description: confirm
+        in: formData
+        name: confirm
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - JwtHeader: []
+      summary: ChangePassword
+  /connect/:provider:
+    get:
+      operationId: ConnectIdentityProvider
+      parameters:
+      - description: provider
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - JwtHeader: []
+      summary: ConnectIdentityProvider
+  /connect/google_handler:
+    get:
+      operationId: GoogleConnectHandler
+      parameters:
+      - description: state
+        in: formData
+        name: state
+        required: true
+        type: string
+      - description: code
+        in: formData
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: GoogleConnectHandler
+  /create-api-key:
+    post:
+      operationId: CreateAPIKey
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CreateAPIKeyResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BadRequestResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ServerErrorResp'
+      security:
+      - JwtHeader: []
+      summary: Create API Key
+  /delete-api-key:
+    delete:
+      operationId: DeleteAPIKey
+      parameters:
+      - description: json body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.DeleteAPIKeyReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.SuccessResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BadRequestResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ServerErrorResp'
+      security:
+      - JwtHeader: []
+      summary: Delete API Key
+  /generate-challenge:
+    post:
+      operationId: GenerateChallenge
+      parameters:
+      - description: json body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.GenerateChallengeReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.GenerateChallengeResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BadRequestResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ServerErrorResp'
+      summary: Generate wallet challenge
+  /get-api-key:
+    get:
+      operationId: GetAPIKey
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.GetAPIKeyResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BadRequestResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ServerErrorResp'
+      security:
+      - JwtHeader: []
+      summary: Get API Key
+  /get_dareid_by_wallet_address/{wallet_address}:
+    get:
+      deprecated: true
+      operationId: GetDareIdByWalletAddress
+      parameters:
+      - description: wallet address
+        in: path
+        name: wallet_address
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ClientBasicAuth: []
+      summary: GetDareIdByWalletAddress
+  /get_presigned_url:
+    post:
+      operationId: GetS3PresignedURL
+      parameters:
+      - description: get s3 presigned url req body
+        in: body
+        name: _
+        schema:
+          $ref: '#/definitions/controllers.ReqGetS3PresignedURL'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ClientBasicAuth: []
+      summary: GetS3PresignedURL
+  /get_profile:
+    get:
+      operationId: GetProfile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - JwtHeader: []
+      summary: GetProfile
+  /get_profile_by_dareid/:dareid:
+    get:
+      operationId: GetProfileByDareid
+      parameters:
+      - description: dareid
+        in: path
+        name: dareid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ClientBasicAuth: []
+      summary: GetProfileByDareid
+  /health:
+    get:
+      operationId: HealthCheck
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.SuccessResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BadRequestResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ServerErrorResp'
+      summary: Health check
+  /login:
+    get:
+      operationId: LoginHandler
+      parameters:
+      - description: state
+        in: formData
+        name: state
+        type: string
+      - description: username
+        in: formData
+        name: username
+        type: string
+      - description: password
+        in: formData
+        name: password
+        type: string
+      - description: wallet_address
+        in: formData
+        name: wallet_address
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: LoginHandler
+    post:
+      operationId: LoginHandler
+      parameters:
+      - description: state
+        in: formData
+        name: state
+        type: string
+      - description: username
+        in: formData
+        name: username
+        type: string
+      - description: password
+        in: formData
+        name: password
+        type: string
+      - description: wallet_address
+        in: formData
+        name: wallet_address
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: LoginHandler
+  /oauth/authorize:
+    get:
+      operationId: OauthAuthorizeHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: OauthAuthorizeHandler
+    post:
+      operationId: OauthAuthorizeHandler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: OauthAuthorizeHandler
+  /oauth/token:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      operationId: OauthTokenHandler
+      parameters:
+      - description: 'Grant type, eg.: client_credentials, password, authorization_code,
+          refresh_token'
+        in: formData
+        name: grant_type
+        required: true
+        type: string
+      - description: authorization code
+        in: formData
+        name: code
+        type: string
+      - description: client's redirect uri
+        in: formData
+        name: redirect_uri
+        type: string
+      - description: PKCE code verifier
+        in: formData
+        name: code_verifier
+        type: string
+      - description: refresh token
+        in: formData
+        name: refresh_token
+        type: string
+      - description: scope of refreshing token
+        in: formData
+        name: scope
+        type: string
+      - description: 'password gt: username'
+        in: formData
+        name: username
+        type: string
+      - description: 'password gt: password'
+        in: formData
+        name: password
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ClientBasicAuth: []
+      summary: OauthTokenHandler
+  /oauth/token-with-data:
+    post:
+      deprecated: true
+      operationId: IssueTokenForDareidWithData
+      parameters:
+      - description: issue token for dareid req body
+        in: body
+        name: _
+        schema:
+          $ref: '#/definitions/controllers.ReqIssueTokenForDareid'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ClientBasicAuth: []
+      summary: IssueTokenForDareidWithData - this API is deprecated, please use /oauth/token
+        instead
+  /oauth/validate-token:
+    get:
+      operationId: ValidateToken
+      parameters:
+      - description: oauth token
+        in: query
+        name: access_token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: ValidateToken
+  /recover_password:
+    post:
+      operationId: RecoverPassword
+      parameters:
+      - description: email
+        in: formData
+        name: email
+        required: true
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: RecoverPassword
+  /refresh_token:
+    post:
+      deprecated: true
+      operationId: RefreshToken
+      parameters:
+      - description: refresh token req body
+        in: body
+        name: _
+        schema:
+          $ref: '#/definitions/controllers.ReqRefreshToken'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - ClientBasicAuth: []
+      summary: RefreshToken - this API is deprecated, please use /oauth/token instead
+  /regist-account:
+    post:
+      operationId: RegistAccountHandler
+      parameters:
+      - description: json body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.RegistAccountReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: RegistAccountHandler
+  /signup:
+    get:
+      operationId: SignupHandler
+      parameters:
+      - description: state
+        in: formData
+        name: state
+        type: string
+      - description: username
+        in: formData
+        name: username
+        type: string
+      - description: password
+        in: formData
+        name: password
+        type: string
+      - description: confirm
+        in: formData
+        name: confirm
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - JwtHeader: []
+      summary: SignupHandler
+    post:
+      operationId: SignupHandler
+      parameters:
+      - description: state
+        in: formData
+        name: state
+        type: string
+      - description: username
+        in: formData
+        name: username
+        type: string
+      - description: password
+        in: formData
+        name: password
+        type: string
+      - description: confirm
+        in: formData
+        name: confirm
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - JwtHeader: []
+      summary: SignupHandler
+  /update_profile:
+    post:
+      operationId: UpdateProfile
+      parameters:
+      - description: update profile json body
+        in: body
+        name: _
+        schema:
+          $ref: '#/definitions/controllers.ReqUpdateProfile'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - JwtHeader: []
+      summary: UpdateProfile
+  /verify-challenge:
+    post:
+      operationId: VerifyChallenge
+      parameters:
+      - description: json body
+        in: body
+        name: _
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.VerifyChallengeReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.VerifyChallengeResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.BadRequestResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ServerErrorResp'
+      security:
+      - ClientBasicAuth: []
+      summary: Verify challenge signature
+securityDefinitions:
+  ClientBasicAuth:
+    type: basic
+  JwtHeader:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
