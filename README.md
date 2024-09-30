@@ -48,6 +48,8 @@ $ go run main.go
 ```
 you should notice the message `Listening and serving HTTP on :[PORT]` is printed out without errors.
 
+- Access the API docs at `http://localhost:[PORT]/swagger/index.html`.
+
 ## Unit test
 
 - Execute unit tests
