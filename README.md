@@ -13,22 +13,30 @@ Main components:
 ## Prerequisites
 
 - [GCC](https://linuxize.com/post/how-to-install-gcc-on-ubuntu-20-04/)
-- [Go v1.23](https://go.dev/doc/install)
-- [PostgreSQL v15](https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart)
+- [Go v1.22](https://go.dev/doc/install)
+- [Python 3.8](https://www.python.org/downloads/release/python-380/)
+- [PostgreSQL](https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart)
+- [Redis](https://hub.docker.com/_/redis)
 
 ## Setup
 
 - Create `.env` file from template and populate necessary credentials and secrets.
 
-```bash
-$ cp .env.default .env
+```sh
+$ cp .env.example .env
+```
+
+- Migrate DB
+
+```sh
+$ cd admin && python manage.py migrate
 ```
 
 ## Run
 
 - Start running dev 
 
-```bash
+```sh
 $ go run main.go
 ```
 
@@ -36,14 +44,14 @@ $ go run main.go
 
 - Compile executables
 
-```bash
+```sh
 $ make build
 ```
 
 - Generate swagger docs
 >   [Install swag](https://github.com/swaggo/swag/releases/download/v1.8.5/swag_1.8.5_Linux_x86_64.tar.gz)
 
-```bash
+```sh
 $ ~/swag init
 ```
 
@@ -51,27 +59,6 @@ $ ~/swag init
 
 - Execute unit tests
 
-```bash
+```sh
 $ make test-unit
 ```
-
-## Demo
-
-- Create symlink `.env` for client apps
-
-```bash
-$ cd demo; ln -s ../.env .env
-```
-
-- Run client demo
-
-```bash
-$ cd demo; go run client.go
-```
-
-- Access to client demo apps http://localhost:9015, then login, this will redirect to Authorization gateway on SSO server
-- Signup with arbitrary email / password
-- Authorize client apps, verify retrieve access token succeed
-- Logout then try to login again with just created account
-- Test token http://localhost:9015/try
-- Refresh token http://localhost:9015/refresh
