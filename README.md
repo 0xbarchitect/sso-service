@@ -46,7 +46,7 @@ $ swag init
 ```sh
 $ go run main.go
 ```
-you should notice the `Listening and serving HTTP on :[PORT]` is printed out without errors.
+you should notice the message `Listening and serving HTTP on :[PORT]` is printed out without errors.
 
 ## Unit test
 
