@@ -12,41 +12,29 @@ Main components:
 
 ## Prerequisites
 
-- Install GCC (Ubuntu 20.04 or later)
+- [GCC](https://linuxize.com/post/how-to-install-gcc-on-ubuntu-20-04/)
+- [Go v1.23](https://go.dev/doc/install)
+- [PostgreSQL v15](https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart)
 
-```bash
-$ sudo apt update
-$ sudo apt install build-essential
-```
+## Setup
 
-- [Go v1.18](https://go.dev/doc/install)
-- [PostgreSQL v12](https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart)
-
-## How to Run
-
-- Config environment variables
+- Create `.env` file from template and populate necessary credentials and secrets.
 
 ```bash
 $ cp .env.default .env
 ```
 
-- Fulfill credentials, secrets to .env file
+## Run
 
-- Load env vars to current bash session
-
-```bash
-$ source ./start_conda.sh
-```
-
-- Spin up local
+- Start running dev 
 
 ```bash
 $ go run main.go
 ```
 
-## Compiling
+## Compile
 
-- Compile executable with command
+- Compile executables
 
 ```bash
 $ make build
@@ -59,31 +47,23 @@ $ make build
 $ ~/swag init
 ```
 
-## Running
+## Unit Test
 
-- Run executable after compiling
-
-```bash
-$ ./bin/sso
-```
-
-## Unit Testing
-
-- Execute unit tests, which is located in ./test folder
+- Execute unit tests
 
 ```bash
 $ make test-unit
 ```
 
-## OAuth2 workflow demo
+## Demo
 
-- Create symlink config.ini for client apps
+- Create symlink `.env` for client apps
 
 ```bash
 $ cd demo; ln -s ../.env .env
 ```
 
-- Compile client
+- Run client demo
 
 ```bash
 $ cd demo; go run client.go
