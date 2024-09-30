@@ -17,6 +17,7 @@ Main components:
 - [Python 3.8](https://www.python.org/downloads/release/python-380/)
 - [PostgreSQL](https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart)
 - [Redis](https://hub.docker.com/_/redis)
+- [Swagger](https://github.com/swaggo/swag/releases/download/v1.8.5/swag_1.8.5_Linux_x86_64.tar.gz)
 
 ## Setup
 
@@ -34,10 +35,25 @@ $ cd admin && python manage.py migrate
 
 ## Run
 
+- Generate swagger docs
+
+```sh
+$ swag init
+```
+
 - Start running dev 
 
 ```sh
 $ go run main.go
+```
+you should notice the `Listening and serving HTTP on :[PORT]` is printed out without errors.
+
+## Unit test
+
+- Execute unit tests
+
+```sh
+$ make test-unit
 ```
 
 ## Compile
@@ -46,19 +62,4 @@ $ go run main.go
 
 ```sh
 $ make build
-```
-
-- Generate swagger docs
->   [Install swag](https://github.com/swaggo/swag/releases/download/v1.8.5/swag_1.8.5_Linux_x86_64.tar.gz)
-
-```sh
-$ ~/swag init
-```
-
-## Unit Test
-
-- Execute unit tests
-
-```sh
-$ make test-unit
 ```
