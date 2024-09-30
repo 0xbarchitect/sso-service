@@ -55,7 +55,7 @@ func (AccountRepository) CreateUser(acct core.AccountCore) (int64, error) {
 	name := "signup by email password"
 	emailVerified := int32(0)
 	account := Account{
-		Dareid:        uid,
+		Uid:           uid,
 		Name:          &name,
 		Email:         &acct.Email,
 		PasswordHash:  &passwordHash,
@@ -110,7 +110,7 @@ func (AccountRepository) CreateUserByWallet(acct core.AccountCore) (int64, error
 
 	name := "signup by wallet"
 	account := Account{
-		Dareid:        uid,
+		Uid:           uid,
 		Name:          &name,
 		WalletAddress: &acct.WalletAddr,
 		// CreatedAt:     time.Now(),
@@ -145,7 +145,7 @@ func (AccountRepository) CreateUserByGoogle(acct core.GoogleUserInfo) (Account, 
 	}
 
 	account := Account{
-		Dareid:        uid,
+		Uid:           uid,
 		Name:          &name,
 		Email:         &acct.Email,
 		EmailVerified: &emailVerified,
@@ -185,7 +185,7 @@ func (AccountRepository) CreateUserByAPI(acct core.AccountAPI) (Account, error) 
 	emailVerified := int32(1)
 
 	account := Account{
-		Dareid:        uid,
+		Uid:           uid,
 		Name:          &name,
 		Email:         &acct.Email,
 		PasswordHash:  &passwordHash,
@@ -238,7 +238,7 @@ func (r *AccountRepository) LoginUserByWallet(wallet_address string) (int64, err
 	}
 }
 
-func (AccountRepository) GetAccountByDareid(uid int64, acct *Account) error {
+func (AccountRepository) GetAccountByUid(uid int64, acct *Account) error {
 	return DB.Where("accounts.uid = ?", uid).First(acct).Error
 }
 

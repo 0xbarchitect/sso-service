@@ -61,7 +61,7 @@ func SendEmailVerification(oauthSrv *server.Server, ssoURL string, clientId stri
 		ClientSecret: clientSecret,
 		Request:      &http.Request{},
 		Scope:        "email_verification",
-		UserID:       fmt.Sprintf("%d", account.Dareid),
+		UserID:       fmt.Sprintf("%d", account.Uid),
 	}
 	ti, err := oauthSrv.GetAccessToken(context.Background(), gt, tgr)
 	if err != nil {
@@ -248,7 +248,7 @@ func LoginHandler(c *gin.Context) {
 			}
 
 			var account models.Account
-			if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+			if err := models.GetAccountRepository().GetAccountByUid(uid, &account); err != nil {
 				helper.GetLogger().Error("get account from uid %d failed with error %s", uid, err)
 				c.Redirect(http.StatusFound, "/login")
 				return
@@ -336,8 +336,8 @@ func LoginHandler(c *gin.Context) {
 			}
 
 			// save uid into session
-			helper.GetLogger().Debug("save uid into session %d", acct.Dareid)
-			ginStore.Set(LOGGED_UID_KEY, fmt.Sprintf("%d", acct.Dareid))
+			helper.GetLogger().Debug("save uid into session %d", acct.Uid)
+			ginStore.Set(LOGGED_UID_KEY, fmt.Sprintf("%d", acct.Uid))
 			ginStore.Save()
 
 			if login_email {
@@ -500,7 +500,7 @@ func SignupHandler(c *gin.Context) {
 		helper.GetLogger().Debug("found uid %d from access token", uid)
 
 		var account models.Account
-		if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+		if err := models.GetAccountRepository().GetAccountByUid(uid, &account); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "not found uid"})
 			return
 		}
@@ -512,7 +512,7 @@ func SignupHandler(c *gin.Context) {
 		}
 
 		// save uid into session and redirect to authorization page
-		ginStore.Set(LOGGED_UID_KEY, fmt.Sprintf("%d", account.Dareid))
+		ginStore.Set(LOGGED_UID_KEY, fmt.Sprintf("%d", account.Uid))
 		ginStore.Save()
 
 		// save redirect info from url into session
@@ -713,11 +713,11 @@ func AuthHandler(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		if claims.DareID != uid.(string) {
+		if claims.UID != uid.(string) {
 			helper.GetLogger().Error("oauth-auth token uid not matched, clean cookie")
 			c.SetCookie(OAUTH_AUTH_COOKIE_NAME, "", -1, "/", cookieDomain, false, false)
 		} else {
-			helper.GetLogger().Debug("verify oauth token success with uid %s", claims.DareID)
+			helper.GetLogger().Debug("verify oauth token success with uid %s", claims.UID)
 			c.Redirect(http.StatusFound, "/oauth/authorize")
 			return
 		}
@@ -857,7 +857,7 @@ func RecoverPassword(c *gin.Context) {
 			ClientSecret: clientSecret,
 			Request:      c.Request,
 			Scope:        "reset_password",
-			UserID:       fmt.Sprintf("%d", account.Dareid),
+			UserID:       fmt.Sprintf("%d", account.Uid),
 		}
 		ti, err := srv.GetAccessToken(c.Request.Context(), gt, tgr)
 		if err != nil {
@@ -865,7 +865,7 @@ func RecoverPassword(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		helper.GetLogger().Debug("generate access token %s for uid %d", ti.GetAccess(), account.Dareid)
+		helper.GetLogger().Debug("generate access token %s for uid %d", ti.GetAccess(), account.Uid)
 
 		result, err := service.GetSendgridService().SendRecoverPasswordEmail(email, ssoURL, ti.GetAccess())
 		if err != nil {
@@ -934,7 +934,7 @@ func ChangePassword(c *gin.Context) {
 	helper.GetLogger().Debug("found uid %d from access token", uid)
 
 	var account models.Account
-	if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+	if err := models.GetAccountRepository().GetAccountByUid(uid, &account); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"code": -3, "error": "not found uid"})
 		return
 	}
@@ -1040,7 +1040,7 @@ func VerifyEmail(c *gin.Context) {
 	helper.GetLogger().Debug("found uid %d from access token", uid)
 
 	var account models.Account
-	if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+	if err := models.GetAccountRepository().GetAccountByUid(uid, &account); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"code": -3, "error": "not found uid"})
 		return
 	}
@@ -1135,7 +1135,7 @@ type VerifyChallengeReq struct {
 
 type VerifyChallengeResp struct {
 	SuccessResp
-	Account core.AccountDare  `json:"account"`
+	Account core.AccountSSO   `json:"account"`
 	Oauth   map[string]string `json:"oauth"`
 }
 
@@ -1197,10 +1197,10 @@ func VerifyChallenge(c *gin.Context) {
 			return
 		}
 	}
-	helper.GetLogger().Debug("found account with uid %d", account.Dareid)
+	helper.GetLogger().Debug("found account with uid %d", account.Uid)
 	// hotfix: need to create return object to prevent int64 casting error of uid
-	accountDare := core.AccountDare{
-		Dareid: fmt.Sprintf("%d", account.Dareid),
+	accountDare := core.AccountSSO{
+		Uid: fmt.Sprintf("%d", account.Uid),
 	}
 	if account.WalletAddress != nil {
 		accountDare.WalletAddress = *account.WalletAddress
@@ -1238,7 +1238,7 @@ func VerifyChallenge(c *gin.Context) {
 		ClientSecret: clientSecret,
 		Request:      c.Request,
 		Scope:        scope,
-		UserID:       fmt.Sprintf("%d", account.Dareid),
+		UserID:       fmt.Sprintf("%d", account.Uid),
 	}
 	ti, err := srv.GetAccessToken(c.Request.Context(), gt, tgr)
 	if err != nil {

@@ -1,8 +1,8 @@
 package core
 
-type DareIdData struct {
+type UIdData struct {
 	Id            int64 `json:"id"`
-	Dareid        string
+	Uid           string
 	WalletAddress *string
 	Name          *string
 	Email         *string
@@ -15,9 +15,9 @@ type DareIdData struct {
 	UpdatedAt     string
 }
 
-type RespGetDareIDByWallet struct {
+type RespGetUIDByWallet struct {
 	Code    int64 `json:"code"`
-	Data    DareIdData
+	Data    UIdData
 	Message string         `json:"message"`
 	Google  GoogleUserInfo `json:"google"`
 	Oauth   OauthToken     `json:"oauth"`
@@ -25,7 +25,7 @@ type RespGetDareIDByWallet struct {
 
 type RespGetProfile struct {
 	Code     int64 `json:"code"`
-	Data     DareIdData
+	Data     UIdData
 	Message  string           `json:"message"`
 	Oauth    OauthToken       `json:"oauth"`
 	Google   GoogleUserInfo   `json:"google"`
@@ -56,22 +56,22 @@ type RespGenerateChallenge struct {
 
 type DareAccount struct {
 	ID            int64  `json:"id"`
-	DareID        int64  `json:"Dareid"`
+	UID           int64  `json:"Uid"`
 	WalletAddress string `json:"WalletAddress"`
 }
 
 type RespVerifyChallenge struct {
-	Code    int64       `json:"code"`
-	Message string      `json:"message"`
-	Account AccountDare `json:"account"`
-	Oauth   OauthToken  `json:"oauth"`
+	Code    int64      `json:"code"`
+	Message string     `json:"message"`
+	Account AccountSSO `json:"account"`
+	Oauth   OauthToken `json:"oauth"`
 }
 
 type RespValidateToken struct {
 	Code    int64      `json:"code"`
 	Message string     `json:"message"`
 	Oauth   OauthToken `json:"oauth"`
-	Dareid  string     `json:"uid"`
+	Uid     string     `json:"uid"`
 }
 
 type APIKey struct {

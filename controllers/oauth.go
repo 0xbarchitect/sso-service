@@ -209,12 +209,12 @@ func PasswordAuthorizationHandler(ctx context.Context, clientID, username, passw
 		return "", err
 	}
 
-	return fmt.Sprintf("%d", acct.Dareid), nil
+	return fmt.Sprintf("%d", acct.Uid), nil
 }
 
-type ReqIssueTokenForDareid struct {
-	Dareid string `json:"uid" binding:"required"`
-	Data   string `json:"data"`
+type ReqIssueTokenForUid struct {
+	Uid  string `json:"uid" binding:"required"`
+	Data string `json:"data"`
 }
 
 // @Summary ValidateToken

@@ -28,7 +28,7 @@ type Client struct {
 
 type Account struct {
 	ID            int64   `json:"id" gorm:"primary_key"`
-	Dareid        int64   `gorm:"uniqueIndex;not null"`
+	Uid           int64   `gorm:"uniqueIndex;not null"`
 	WalletAddress *string `gorm:"uniqueIndex;size:64;default:null"`
 	Name          *string `gorm:"size:512;default:null"`
 	Email         *string `gorm:"uniqueIndex;size:512;default:null"`
@@ -39,16 +39,14 @@ type Account struct {
 	AvatarUrl     *string `gorm:"size:1024;default:null"`
 	EmailVerified *int32  `gorm:"default:0"`
 
-	AccountGoogle   AccountGoogle
-	AccountTwitter  AccountTwitter
-	AccountTelegram AccountTelegram
+	AccountGoogle AccountGoogle
 
 	DareModel
 }
 
 type AccountGoogle struct {
 	ID        int64 `json:"id" gorm:"primary_key"`
-	Dareid    int64 `gorm:"uniqueIndex;not null"`
+	Uid       int64 `gorm:"uniqueIndex;not null"`
 	AccountID int64
 
 	Sub           string `gorm:"size:64;default:null"`
@@ -60,42 +58,6 @@ type AccountGoogle struct {
 	Email         string `gorm:"size:512;default:null"`
 	EmailVerified *int32 `gorm:"default:0"`
 	Gender        string `gorm:"size:32;default:null"`
-
-	DareModel
-}
-
-type AccountTwitter struct {
-	ID        int64 `json:"id" gorm:"primary_key"`
-	Dareid    int64 `gorm:"uniqueIndex;not null"`
-	AccountID int64
-
-	Uid               string `gorm:"size:64;default:null"`
-	Username          string `gorm:"size:512;not null"`
-	Url               string `gorm:"size:1024;default:null"`
-	ProfileImage      string `gorm:"size:1024;default:null"`
-	ProfileBanner     string `gorm:"size:1024;default:null"`
-	ProfileBackground string `gorm:"size:1024;default:null"`
-	Name              string `gorm:"size:512;default:null"`
-	Description       string `gorm:"default:null"`
-	Email             string `gorm:"size:512;default:null"`
-	Location          string `gorm:"size:128;default:null"`
-	Lang              string `gorm:"size:128;default:null"`
-	Timezone          string `gorm:"size:64;default:null"`
-	FriendCount       *int   `gorm:"default:0"`
-	FollowerCount     *int   `gorm:"default:0"`
-
-	DareModel
-}
-
-type AccountTelegram struct {
-	ID        int64 `json:"id" gorm:"primary_key"`
-	Dareid    int64 `gorm:"uniqueIndex;not null"`
-	AccountID int64
-
-	Uid       string `gorm:"size:64;default:null"`
-	Username  string `gorm:"size:512;not null"`
-	FirstName string `gorm:"size:1024;default:null"`
-	LastName  string `gorm:"size:1024;default:null"`
 
 	DareModel
 }

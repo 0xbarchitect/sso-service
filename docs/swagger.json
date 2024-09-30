@@ -430,8 +430,8 @@
                 "produces": [
                     "application/json"
                 ],
-                "summary": "GetProfileByDareid",
-                "operationId": "GetProfileByDareid",
+                "summary": "GetProfileByUid",
+                "operationId": "GetProfileByUid",
                 "parameters": [
                     {
                         "type": "string",
@@ -1089,7 +1089,7 @@
             "type": "object",
             "properties": {
                 "account": {
-                    "$ref": "#/definitions/core.AccountDare"
+                    "$ref": "#/definitions/core.AccountSSO"
                 },
                 "code": {
                     "type": "integer",
@@ -1107,13 +1107,13 @@
                 }
             }
         },
-        "core.AccountDare": {
+        "core.AccountSSO": {
             "type": "object",
             "properties": {
-                "dareid": {
+                "email": {
                     "type": "string"
                 },
-                "email": {
+                "uid": {
                     "type": "string"
                 },
                 "walletAddress": {

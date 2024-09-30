@@ -39,8 +39,8 @@ type JWTHelperInf interface {
 }
 
 type CustomClaims struct {
-	DareID string `json:"uid"`
-	Data   string `json:"data"`
+	UID  string `json:"uid"`
+	Data string `json:"data"`
 	jwt.RegisteredClaims
 }
 

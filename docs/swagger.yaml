@@ -110,7 +110,7 @@ definitions:
   controllers.VerifyChallengeResp:
     properties:
       account:
-        $ref: '#/definitions/core.AccountDare'
+        $ref: '#/definitions/core.AccountSSO'
       code:
         example: 200
         type: integer
@@ -122,11 +122,11 @@ definitions:
           type: string
         type: object
     type: object
-  core.AccountDare:
+  core.AccountSSO:
     properties:
-      dareid:
-        type: string
       email:
+        type: string
+      uid:
         type: string
       walletAddress:
         type: string
@@ -417,7 +417,7 @@ paths:
       summary: GetProfile
   /get_profile_by_uid/:uid:
     get:
-      operationId: GetProfileByDareid
+      operationId: GetProfileByUid
       parameters:
       - description: uid
         in: path
@@ -433,7 +433,7 @@ paths:
             type: string
       security:
       - ClientBasicAuth: []
-      summary: GetProfileByDareid
+      summary: GetProfileByUid
   /health:
     get:
       operationId: HealthCheck

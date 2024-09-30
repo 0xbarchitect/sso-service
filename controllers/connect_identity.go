@@ -256,7 +256,7 @@ func GoogleOauthHandler(c *gin.Context) {
 
 		accountGoogle = models.AccountGoogle{
 			AccountID:     account.ID,
-			Dareid:        account.Dareid,
+			Uid:           account.Uid,
 			Sub:           googleUserInfo.Sub,
 			Name:          googleUserInfo.Name,
 			GivenName:     googleUserInfo.GivenName,
@@ -309,7 +309,7 @@ func GoogleOauthHandler(c *gin.Context) {
 		ResponseType:        oauth2.ResponseType("code"),
 		ClientID:            clientIdStr,
 		RedirectURI:         redirectURL,
-		UserID:              strconv.FormatInt(account.Dareid, 10),
+		UserID:              strconv.FormatInt(account.Uid, 10),
 		CodeChallenge:       codeChallenge,
 		CodeChallengeMethod: oauth2.CodeChallengeMethod(codeChallengeMethod),
 		Request:             r,
@@ -381,7 +381,7 @@ func GoogleConnectHandler(c *gin.Context) {
 	}
 
 	var account models.Account
-	if err := models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+	if err := models.GetAccountRepository().GetAccountByUid(uid, &account); err != nil {
 		helper.GetLogger().Error("not found uid %s", uid)
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -429,7 +429,7 @@ func GoogleConnectHandler(c *gin.Context) {
 
 		accountGoogle = models.AccountGoogle{
 			AccountID:     account.ID,
-			Dareid:        account.Dareid,
+			Uid:           account.Uid,
 			Sub:           googleUserInfo.Sub,
 			Name:          googleUserInfo.Name,
 			GivenName:     googleUserInfo.GivenName,

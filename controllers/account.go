@@ -32,7 +32,7 @@ type ReqUpdateProfile struct {
 // @Router /update_profile [post]
 func UpdateProfile(c *gin.Context) {
 	var err error
-	var data core.DareIdData
+	var data core.UIdData
 
 	var req ReqUpdateProfile
 	if err = c.ShouldBindJSON(&req); err != nil {
@@ -82,7 +82,7 @@ func UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	data, err = models.CreateDareidDataFromAccount(&account)
+	data, err = models.CreateUidDataFromAccount(&account)
 	if err != nil {
 		helper.GetLogger().Error("encoding resp data failed with error %s", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "error": err.Error()})
@@ -100,7 +100,7 @@ func UpdateProfile(c *gin.Context) {
 // @Router /get_profile [get]
 func GetProfile(c *gin.Context) {
 	var err error
-	var data core.DareIdData
+	var data core.UIdData
 
 	// get uid from ctx
 	uidCtx, existed := c.Get("uid")
@@ -125,7 +125,7 @@ func GetProfile(c *gin.Context) {
 		return
 	}
 
-	data, err = models.CreateDareidDataFromAccount(&account)
+	data, err = models.CreateUidDataFromAccount(&account)
 	if err != nil {
 		helper.GetLogger().Error("encoding resp data failed with error %s", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "error": err.Error()})
@@ -133,22 +133,20 @@ func GetProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "get profile success", "data": data,
-		"google":   account.AccountGoogle,
-		"twitter":  account.AccountTwitter,
-		"telegram": account.AccountTelegram,
+		"google": account.AccountGoogle,
 	})
 }
 
-// @Summary GetProfileByDareid
-// @ID GetProfileByDareid
+// @Summary GetProfileByUid
+// @ID GetProfileByUid
 // @Security ClientBasicAuth
 // @Produce application/json
 // @Param uid path string true "uid"
 // @Success 200 {string} application/json
 // @Router /get_profile_by_uid/:uid [get]
-func GetProfileByDareid(c *gin.Context) {
+func GetProfileByUid(c *gin.Context) {
 	var err error
-	var data core.DareIdData
+	var data core.UIdData
 
 	// only system client could call this api
 	clientId := c.MustGet(gin.AuthUserKey).(string)
@@ -180,7 +178,7 @@ func GetProfileByDareid(c *gin.Context) {
 		return
 	}
 
-	data, err = models.CreateDareidDataFromAccount(&account)
+	data, err = models.CreateUidDataFromAccount(&account)
 	if err != nil {
 		helper.GetLogger().Error("encoding resp data failed with error %s", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"code": -3, "error": err.Error()})
@@ -188,9 +186,7 @@ func GetProfileByDareid(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "get profile success", "data": data,
-		"google":   account.AccountGoogle,
-		"twitter":  account.AccountTwitter,
-		"telegram": account.AccountTelegram,
+		"google": account.AccountGoogle,
 	})
 }
 
@@ -221,7 +217,7 @@ func CreateAPIKey(c *gin.Context) {
 		return
 	}
 	var account models.Account
-	if err = models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+	if err = models.GetAccountRepository().GetAccountByUid(uid, &account); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found uid %d", uid)})
 		return
 	}
@@ -234,10 +230,10 @@ func CreateAPIKey(c *gin.Context) {
 
 	var secrets []models.AccountSecret
 	if err = models.GetAccountRepository().GetAPIKey(&account, &secrets); err != nil {
-		helper.GetLogger().Debug("not found api-key of uid %d, create new one", account.Dareid)
+		helper.GetLogger().Debug("not found api-key of uid %d, create new one", account.Uid)
 	} else {
 		if len(secrets) >= int(maxNumber) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("account %d has reached max number of key", account.Dareid).Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("account %d has reached max number of key", account.Uid).Error()})
 			return
 		}
 	}
@@ -279,7 +275,7 @@ func GetAPIKey(c *gin.Context) {
 	}
 
 	var account models.Account
-	if err = models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+	if err = models.GetAccountRepository().GetAccountByUid(uid, &account); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found uid %d", uid).Error()})
 		return
 	}
@@ -326,7 +322,7 @@ func DeleteAPIKey(c *gin.Context) {
 		return
 	}
 	var account models.Account
-	if err = models.GetAccountRepository().GetAccountByDareid(uid, &account); err != nil {
+	if err = models.GetAccountRepository().GetAccountByUid(uid, &account); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": fmt.Errorf("not found uid %d", uid).Error()})
 		return
 	}

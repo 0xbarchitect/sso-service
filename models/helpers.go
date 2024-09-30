@@ -7,10 +7,10 @@ import (
 )
 
 // helpers function
-func CreateDareidDataFromAccount(account *Account) (core.DareIdData, error) {
-	return core.DareIdData{
+func CreateUidDataFromAccount(account *Account) (core.UIdData, error) {
+	return core.UIdData{
 		Id:            account.ID,
-		Dareid:        fmt.Sprintf("%d", account.Dareid),
+		Uid:           fmt.Sprintf("%d", account.Uid),
 		WalletAddress: account.WalletAddress,
 		Name:          account.Name,
 		Email:         account.Email,

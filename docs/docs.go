@@ -438,8 +438,8 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "GetProfileByDareid",
-                "operationId": "GetProfileByDareid",
+                "summary": "GetProfileByUid",
+                "operationId": "GetProfileByUid",
                 "parameters": [
                     {
                         "type": "string",
@@ -1097,7 +1097,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "account": {
-                    "$ref": "#/definitions/core.AccountDare"
+                    "$ref": "#/definitions/core.AccountSSO"
                 },
                 "code": {
                     "type": "integer",
@@ -1115,13 +1115,13 @@ const docTemplate = `{
                 }
             }
         },
-        "core.AccountDare": {
+        "core.AccountSSO": {
             "type": "object",
             "properties": {
-                "dareid": {
+                "email": {
                     "type": "string"
                 },
-                "email": {
+                "uid": {
                     "type": "string"
                 },
                 "walletAddress": {

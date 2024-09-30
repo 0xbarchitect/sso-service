@@ -43,8 +43,8 @@ type TelegramUserInfo struct {
 	LastName  string
 }
 
-type AccountDare struct {
-	Dareid        string
+type AccountSSO struct {
+	Uid           string
 	WalletAddress string
 	Email         string
 }
