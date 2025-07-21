@@ -4,7 +4,7 @@ The all-in-one Single-Sign-On (SSO) Service that complies with OAuth2 standard a
 
 ## Architecture
 
-- [System architecture](./docs/architecture.md)
+![system architecture](./docs/system_architecture.png)
 
 Main components:
 >   - Authorization gateway
